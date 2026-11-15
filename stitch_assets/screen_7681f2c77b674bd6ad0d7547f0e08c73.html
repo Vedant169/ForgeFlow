@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>FlowForge — Enterprise Distributed Data Engine</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-dim":"#d2d9f4","inverse-on-surface":"#eef0ff","secondary-fixed-dim":"#68dba9","on-primary-container":"#eeefff","on-tertiary-fixed-variant":"#6e3900","secondary-container":"#82f5c1","tertiary-container":"#a65900","surface-container-lowest":"#ffffff","surface-variant":"#dae2fd","surface-container-highest":"#dae2fd","tertiary-fixed":"#ffdcc3","outline":"#737686","on-surface":"#131b2e","primary":"#004ac6","primary-container":"#2563eb","surface-bright":"#faf8ff","primary-fixed":"#dbe1ff","inverse-surface":"#283044","on-primary":"#ffffff","tertiary":"#824500","on-error":"#ffffff","error-container":"#ffdad6","on-secondary-fixed-variant":"#005137","inverse-primary":"#b4c5ff","on-tertiary":"#ffffff","on-tertiary-container":"#ffede1","secondary":"#006c4a","on-tertiary-fixed":"#2f1500","surface-container":"#eaedff","on-surface-variant":"#434655","secondary-fixed":"#85f8c4","on-secondary-container":"#00714e","outline-variant":"#c3c6d7","background":"#faf8ff","tertiary-fixed-dim":"#ffb77d","surface-tint":"#0053db","on-primary-fixed-variant":"#003ea8","on-primary-fixed":"#00174b","on-background":"#131b2e","surface-container-high":"#e2e7ff","on-secondary-fixed":"#002114","surface-container-low":"#f2f3ff","primary-fixed-dim":"#b4c5ff","on-error-container":"#93000a","error":"#ba1a1a","on-secondary":"#ffffff","surface":"#faf8ff"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"margin-sm":"1rem","space-xl":"1.5rem","space-lg":"1rem","gutter":"1rem","gutter-dense":"0.5rem","space-sm":"0.5rem","space-xs":"0.25rem","space-md":"0.75rem","margin":"1.5rem"},fontFamily:{"label-md":["Geist"],"body-lg":["Geist"],"label-sm":["Geist"],"display-lg":["Geist"],"code-md":["JetBrains Mono"],"headline-md":["Geist"],"headline-sm":["Geist"],"body-sm":["Geist"],"body-md":["Geist"],"code-sm":["JetBrains Mono"],"headline-lg":["Geist"]},fontSize:{"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],"body-lg":["15px",{"lineHeight":"22px","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.02em","fontWeight":"500"}],"display-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"code-md":["13px",{"lineHeight":"20px","fontWeight":"400"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"20px","fontWeight":"400"}],"code-sm":["11px",{"lineHeight":"16px","fontWeight":"500"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6"><div class="flex items-center gap-6"><a class="flex items-center gap-2.5 focus:outline-none" data-path="product" href="#"><div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-[20px]">hub</span></div><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface font-bold">FlowForge</span></a><div class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/30 text-on-secondary-container font-code-sm text-code-sm"><span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span><span>v2.4 Live</span></div></div><nav class="hidden lg:flex items-center gap-8" data-active-classes="text-primary font-label-md"><a aria-current="page" class="transition-colors duration-150 text-primary font-label-md" data-path="product" href="#">Product</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="architecture" href="#">Architecture</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="solutions" href="#">Solutions</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="documentation" href="#">Documentation</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="pricing" href="#">Pricing</a></nav><div class="flex items-center gap-3"><a class="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150" data-path="login" href="#">Sign In</a><a class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:bg-primary transition-colors duration-150" data-path="pricing" href="#">Start Free Trial</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-1"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-16rem)]"><div class="flex flex-col w-full">
+<!-- Top Decorative Engineering Ambience Bar -->
+<div class="w-full bg-surface-container-low py-2 px-6 lg:px-12">
+<div class="max-w-7xl mx-auto flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 text-secondary">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+          Cluster us-east-4: Healthy
+        </span>
+<span class="text-outline-variant">/</span>
+<span class="hidden sm:inline">Engine Kernel v2.4.11-release</span>
+</div>
+<div class="flex items-center gap-4">
+<span>Ingress: <strong class="text-on-surface font-semibold">1,842,090 msg/s</strong></span>
+<span class="hidden md:inline">Global P99: <strong class="text-on-surface font-semibold">9.4ms</strong></span>
+</div>
+</div>
+</div>
+<!-- Hero Section -->
+<section class="relative w-full py-16 lg:py-24 px-6 lg:px-12 overflow-hidden">
+<!-- Ambient Radial Glow Accent -->
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-primary-fixed/30 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="max-w-7xl mx-auto flex flex-col items-center text-center">
+<!-- Eyebrow Badge -->
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container text-primary font-code-sm text-code-sm shadow-sm mb-6">
+<span class="material-symbols-outlined text-base">bolt</span>
+<span>FLOWFORGE 2.4 — ZERO-LATENCY DATA TRANSFORMATION</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary ml-1"></span>
+</div>
+<!-- Headline -->
+<h1 class="font-display-lg text-display-lg sm:text-4xl lg:text-5xl lg:leading-[1.15] text-on-surface font-bold tracking-tight max-w-4xl">
+        Transform raw APIs into live interactive pipelines in seconds.
+      </h1>
+<!-- Subheadline -->
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-6">
+        FlowForge connects heterogeneous REST, GraphQL, and WebSocket streams into high-throughput visual graphs with zero-buffer schema deduplication and instant analytics.
+      </p>
+<!-- Dual Call to Actions -->
+<div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md shadow-md hover:bg-primary transition-all duration-200" href="#auth-section">
+<span>Get Started with FlowForge</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</a>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md shadow-sm hover:bg-surface-container transition-all duration-150" href="#auth-section">
+<span class="material-symbols-outlined text-lg">login</span>
+<span>Log in to Workspace</span>
+</a>
+</div>
+<!-- Micro-copy Proofs -->
+<div class="mt-4 flex flex-wrap items-center justify-center gap-4 text-on-surface-variant font-code-sm text-code-sm">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-secondary">check_circle</span>
+          No credit card required
+        </span>
+<span class="text-outline-variant">•</span>
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-secondary">verified_user</span>
+          14-day enterprise trial
+        </span>
+<span class="text-outline-variant">•</span>
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-secondary">shield</span>
+          SOC2 Type II Certified
+        </span>
+</div>
+<!-- Hero Product Preview: Orchestration Engine Mockup -->
+<div class="w-full max-w-5xl mt-14 bg-surface-container-lowest rounded-xl shadow-xl overflow-hidden text-left">
+<!-- Window Chrome / Status Header -->
+<div class="px-5 py-3 bg-surface-container-low flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center gap-2">
+<div class="flex gap-1.5">
+<span class="w-3 h-3 rounded-full bg-error/60 inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-tertiary-fixed-dim inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-secondary-fixed-dim inline-block"></span>
+</div>
+<span class="text-outline-variant font-code-sm text-code-sm ml-2">pipeline://edge-ord-prod-420.ff</span>
+</div>
+<div class="flex items-center gap-3 font-code-sm text-code-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface text-secondary font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+              SLA 99.98%
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface text-on-surface font-medium">
+<span class="material-symbols-outlined text-sm text-primary">speed</span>
+              Latency: 41ms
+            </span>
+</div>
+</div>
+<!-- Canvas Visual Pipeline Representation -->
+<div class="p-6 lg:p-8 bg-surface-bright space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+<!-- Node 1: Ingestion Source -->
+<div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow relative">
+<div class="flex items-center justify-between mb-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-bold">POST INGEST</span>
+<span class="font-code-sm text-code-sm text-secondary">200 OK</span>
+</div>
+<div class="font-code-md text-code-md font-semibold text-on-surface truncate">/v2/telemetry/events</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">REST Source • TLS 1.3 Payload</p>
+<div class="mt-3 pt-2 bg-surface-container-low p-2 rounded font-code-sm text-code-sm text-on-surface-variant">
+<code>{ "traceId": "9b1c", "tier": "gold" }</code>
+</div>
+<div class="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-6 h-6 rounded-full bg-primary text-on-primary shadow flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</div>
+</div>
+<!-- Node 2: Transformation Studio Module -->
+<div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow relative">
+<div class="flex items-center justify-between mb-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-bold">TRANSFORM</span>
+<span class="font-code-sm text-code-sm text-primary font-medium">0.8ms exec</span>
+</div>
+<div class="font-code-md text-code-md font-semibold text-on-surface">flatten → cast → dedup</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">State: Hash-table memory bloom</p>
+<div class="mt-3 pt-2 bg-surface-container-low p-2 rounded font-code-sm text-code-sm text-on-surface-variant">
+<code>dedup_key: sha256(payload.id)</code>
+</div>
+<div class="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-6 h-6 rounded-full bg-primary text-on-primary shadow flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</div>
+</div>
+<!-- Node 3: Sink & Live Egress Recharts Ingestion Preview -->
+<div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-2">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-secondary-container/40 text-on-secondary-container font-bold">EGRESS SINK</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">14,200 rps</span>
+</div>
+<div class="font-code-md text-code-md font-semibold text-on-surface">ClickHouse &amp; S3 Vault</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Zero-copy arrow buffers</p>
+<!-- Ingestion Telemetry Sparkline -->
+<div class="mt-3 bg-surface-container-low p-2 rounded">
+<div class="flex justify-between items-center text-code-sm font-code-sm text-on-surface-variant mb-1">
+<span>Stream Flow</span>
+<span class="text-secondary font-semibold">Healthy</span>
+</div>
+<svg class="w-full h-8 text-primary" fill="none" viewbox="0 0 200 40">
+<path d="M0 32 L20 28 L40 35 L60 18 L80 22 L100 12 L120 20 L140 8 L160 14 L180 4 L200 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M0 32 L20 28 L40 35 L60 18 L80 22 L100 12 L120 20 L140 8 L160 14 L180 4 L200 10 L200 40 L0 40 Z" fill="currentColor" fill-opacity="0.1"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Live Terminal Output Bar -->
+<div class="bg-inverse-surface rounded-lg p-4 text-inverse-on-surface font-code-sm text-code-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-inner">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-base">terminal</span>
+<span class="text-inverse-primary">[12:44:09.112]</span>
+<span class="truncate">ACK payload signature 0x8a92f — Batch committed to ClickHouse warehouse [cluster-sh-02]</span>
+</div>
+<div class="flex items-center gap-2 text-surface-dim">
+<span>Memory RSS: <strong>1.42 GB</strong></span>
+<span>•</span>
+<span>Drops: <strong>0</strong></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Social Proof & Trust Ticker -->
+<section class="w-full bg-surface-container-lowest py-16 px-6 lg:px-12">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-10">
+<h2 class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">
+          Trusted by engineering and data architecture teams at scale
+        </h2>
+</div>
+<!-- Partner Logos Row -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 items-center justify-items-center opacity-75">
+<div class="flex items-center gap-1.5 font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">
+<span class="material-symbols-outlined text-primary text-xl">payments</span> Stripe
+        </div>
+<div class="flex items-center gap-1.5 font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">
+<span class="material-symbols-outlined text-primary text-xl">pets</span> Datadog
+        </div>
+<div class="flex items-center gap-1.5 font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">
+<span class="material-symbols-outlined text-primary text-xl">ac_unit</span> Snowflake
+        </div>
+<div class="flex items-center gap-1.5 font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">
+<span class="material-symbols-outlined text-primary text-xl">dns</span> HashiCorp
+        </div>
+<div class="flex items-center gap-1.5 font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">
+<span class="material-symbols-outlined text-primary text-xl">change_history</span> Vercel
+        </div>
+<div class="flex items-center gap-1.5 font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">
+<span class="material-symbols-outlined text-primary text-xl">grid_view</span> ClickHouse
+        </div>
+</div>
+<!-- Quantitative System Metrics -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-14 pt-10">
+<div class="p-6 bg-surface-container rounded-xl">
+<div class="font-display-lg text-display-lg font-bold text-primary tracking-tight">4.2B+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold mt-1">Daily Events</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Processed across low-latency distributed partitions.</p>
+</div>
+<div class="p-6 bg-surface-container rounded-xl">
+<div class="font-display-lg text-display-lg font-bold text-primary tracking-tight">&lt; 12ms</div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold mt-1">Processing Latency</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Median pipeline round-trip transit from source to target.</p>
+</div>
+<div class="p-6 bg-surface-container rounded-xl">
+<div class="font-display-lg text-display-lg font-bold text-primary tracking-tight">99.999%</div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold mt-1">SLA Uptime</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Enterprise multi-cloud redundancy with active replication.</p>
+</div>
+<div class="p-6 bg-surface-container rounded-xl">
+<div class="font-display-lg text-display-lg font-bold text-primary tracking-tight">180+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold mt-1">Connectors</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Pre-built integrations for REST, Kafka, GraphQL, SQL.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Product Feature Highlights (Bento Grid) -->
+<section class="w-full py-20 px-6 lg:px-12 bg-surface">
+<div class="max-w-7xl mx-auto">
+<div class="text-left mb-12">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-code-sm mb-3">
+          ARCHITECTURE CORE
+        </div>
+<h2 class="font-headline-lg text-headline-lg lg:text-3xl text-on-surface font-bold">
+          Engineered for deterministic throughput and extreme developer velocity
+        </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-2">
+          Replace brittle custom ETL scrapers and cron jobs with self-healing, type-safe API transformation primitives.
+        </p>
+</div>
+<!-- Bento Grid Architecture -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Card 1: Instant API Auto-Discovery (Spans 2 columns) -->
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
+<span class="material-symbols-outlined text-2xl">travel_explore</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">Instant API Auto-Discovery</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-xl">
+              Paste any <code class="font-code-sm text-code-sm bg-surface-container px-1 py-0.5 rounded">curl</code> command, Postman collection, or Swagger/OpenAPI spec. FlowForge dynamically synthesizes payload schemas, detects nested JSON array bounds, and normalizes auth tokens on the fly.
+            </p>
+</div>
+<!-- Code / Visual Box Mockup -->
+<div class="mt-6 bg-surface-container-low rounded-lg p-4 font-code-sm text-code-sm overflow-x-auto text-on-surface">
+<div class="flex items-center justify-between text-outline mb-2">
+<span>CLI / INTERACTIVE INGEST</span>
+<span class="text-secondary font-medium">auto-inferred: OpenAPI 3.1</span>
+</div>
+<pre class="text-primary font-code-sm"><code>flowforge ingest --curl "https://api.stripe.com/v1/invoices" \
+  --auto-schema --rate-limit=5000/s --target=warehouse</code></pre>
+</div>
+</div>
+<!-- Card 2: Zero-Code Transformation Studio -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
+<span class="material-symbols-outlined text-2xl">account_tree</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">Zero-Code Transformation Studio</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">
+              Map, flatten, and reshape complex JSON payloads using visual node graphs or inline expression filters (<code class="font-code-sm text-code-sm bg-surface-container px-1 py-0.5 rounded">jq</code>, WebAssembly, and TypeScript plugins).
+            </p>
+</div>
+<div class="mt-6 p-4 rounded-lg bg-surface-container-high">
+<div class="flex items-center gap-2 text-on-surface font-code-sm text-code-sm font-semibold mb-2">
+<span class="material-symbols-outlined text-sm text-primary">merge</span>
+<span>Filter: JQ Projection</span>
+</div>
+<div class="text-on-surface-variant font-code-sm text-code-sm">
+<code>.data[] | {id, val: .meta.amt, ts}</code>
+</div>
+</div>
+</div>
+<!-- Card 3: Real-time Telemetry & Diagnostics -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
+<span class="material-symbols-outlined text-2xl">insights</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">Real-time Diagnostics</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">
+              Inspect packet health, Jitter oscilloscopes, HTTP response variance, and live memory queues with zero buffer drops.
+            </p>
+</div>
+<div class="mt-6 bg-surface-container-low p-4 rounded-lg">
+<div class="flex justify-between items-center text-code-sm font-code-sm mb-2 text-on-surface">
+<span>Backpressure Queue</span>
+<span class="text-secondary font-bold">0.02%</span>
+</div>
+<div class="w-full bg-surface-dim rounded-full h-2">
+<div class="bg-secondary h-2 rounded-full w-[2%]"></div>
+</div>
+<div class="flex justify-between text-code-sm font-code-sm text-on-surface-variant mt-2">
+<span>GC Pause: 0.1ms</span>
+<span>Ring Buffer: 16k</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Enterprise Security Vault (Spans 2 columns) -->
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
+<span class="material-symbols-outlined text-2xl">lock</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">Enterprise Security Vault</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-xl">
+              Equipped with HashiCorp Vault KV2 credential encryption, automated token rotation, OAuth2/mTLS support, and fine-grained RBAC. Payloads are transformed zero-retention with hardware KMS root security.
+            </p>
+</div>
+<div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+<div class="p-3 bg-surface-container rounded-lg text-center">
+<div class="font-label-sm text-label-sm text-on-surface-variant">CIPHER</div>
+<div class="font-code-md text-code-md font-bold text-on-surface mt-1">AES-256-GCM</div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg text-center">
+<div class="font-label-sm text-label-sm text-on-surface-variant">KEY ROTATION</div>
+<div class="font-code-md text-code-md font-bold text-on-surface mt-1">Automatic / 24h</div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg text-center">
+<div class="font-label-sm text-label-sm text-on-surface-variant">IDENTITY</div>
+<div class="font-code-md text-code-md font-bold text-on-surface mt-1">SAML 2.0 / Okta</div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg text-center">
+<div class="font-label-sm text-label-sm text-on-surface-variant">ISOLATION</div>
+<div class="font-code-md text-code-md font-bold text-on-surface mt-1">mTLS VPC Peer</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Login / Authentication Portal Section -->
+<section class="w-full py-20 px-6 lg:px-12 bg-surface-container-low" id="auth-section">
+<div class="max-w-4xl mx-auto flex flex-col items-center">
+<div class="text-center mb-8">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-secondary-container/40 text-on-secondary-container font-code-sm text-code-sm mb-3">
+          CONSOLE ACCESS
+        </div>
+<h2 class="font-headline-lg text-headline-lg lg:text-3xl text-on-surface font-bold">
+          Ready to build? Access your FlowForge workspace.
+        </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">
+          Sign in with your enterprise credentials or single sign-on.
+        </p>
+</div>
+<!-- Authentication Card Form -->
+<div class="w-full max-w-md bg-surface-container-lowest rounded-xl shadow-xl p-8">
+<!-- SSO Quick Buttons -->
+<div class="space-y-3">
+<button class="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface font-label-md text-label-md shadow-sm" type="button">
+<svg class="w-4 h-4" viewbox="0 0 24 24">
+<path d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" fill="#4285F4"></path>
+<path d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z" fill="#34A853"></path>
+<path d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z" fill="#FBBC05"></path>
+<path d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" fill="#EA4335"></path>
+</svg>
+<span>Continue with Google</span>
+</button>
+<button class="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface font-label-md text-label-md shadow-sm" type="button">
+<span class="material-symbols-outlined text-lg">code</span>
+<span>Continue with GitHub</span>
+</button>
+<button class="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface font-label-md text-label-md shadow-sm" type="button">
+<span class="material-symbols-outlined text-lg">vpn_key</span>
+<span>SSO (Okta / SAML / Ping)</span>
+</button>
+</div>
+<!-- Divider -->
+<div class="relative my-6 text-center">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full bg-surface-variant h-px"></div>
+</div>
+<span class="relative bg-surface-container-lowest px-3 font-code-sm text-code-sm text-on-surface-variant font-semibold">
+            OR CONTINUE WITH WORK EMAIL
+          </span>
+</div>
+<!-- Interactive Form -->
+<form class="space-y-4" onsubmit="event.preventDefault(); alert('Enterprise workspace authenticated.');">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1" for="work-email">Work Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-lg">mail</span>
+<input class="w-full pl-10 pr-3 py-2 rounded-lg bg-surface-bright text-on-surface font-body-md text-body-md placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary shadow-sm" id="work-email" placeholder="alex.rivera@company.com" required="" type="email"/>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between mb-1">
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold" for="work-password">Password</label>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="#">Forgot password?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-lg">password</span>
+<input class="w-full pl-10 pr-3 py-2 rounded-lg bg-surface-bright text-on-surface font-body-md text-body-md placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary shadow-sm" id="work-password" placeholder="••••••••••••" required="" type="password"/>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<label class="flex items-center gap-2 cursor-pointer font-body-sm text-body-sm text-on-surface-variant">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary" type="checkbox"/>
+<span>Remember this device for 30 days</span>
+</label>
+</div>
+<button class="w-full mt-2 py-3 px-4 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md shadow-md hover:bg-primary transition-all duration-200 font-semibold" type="submit">
+            Sign In to Dashboard
+          </button>
+</form>
+<div class="mt-6 pt-4 text-center bg-surface-container-low rounded-lg p-3">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Need an enterprise sandbox? 
+            <a class="text-primary font-semibold hover:underline" href="#">Request a custom demo</a>
+</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Customer Testimonials / Quotes -->
+<section class="w-full py-20 px-6 lg:px-12 bg-surface">
+<div class="max-w-7xl mx-auto">
+<div class="text-left mb-12">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-surface-container text-on-surface font-code-sm text-code-sm mb-3">
+          PRODUCTION VERIFIED
+        </div>
+<h2 class="font-headline-lg text-headline-lg lg:text-3xl text-on-surface font-bold">
+          Proven across mission-critical data backbones
+        </h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Quote Card 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="text-primary/10 absolute -right-4 -bottom-6 select-none pointer-events-none">
+<span class="material-symbols-outlined text-9xl">format_quote</span>
+</div>
+<div>
+<div class="flex items-center gap-1 text-tertiary-container mb-4">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface italic">
+              "FlowForge cut down our team's bespoke ingestion maintenance by 80%. When a third-party partner introduces breaking changes to their payload schema, FlowForge warns us immediately and auto-converts types without dropping a single event."
+            </p>
+</div>
+<div class="mt-8 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a senior engineering architect in a modern office environment with subtle cool lighting, professional headshot style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAl6eMoMkSND8ufXoiO2vje2RE-R07mhNdn_S6Z9Q29JArNsbYqOjPQeYvKpKvj6lEN5qejhSH939K8L6KDE4sWG9wk38nn0sBSI4Hr7I3z1FDqAWn0GPd_83CMGrYvnYknUOVkPWSGIIkejzneUM4-HRxbSR7OFSgF-gckrPASixjm-GOax_EM14tJVz3Z_zYJlrNjkvgV9K4OJqdnqz_ayA4Vu0m0oWphKsNMxVBVnXaK6oyfrVp2"/>
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-bold">Devin Sterling</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Staff Platform Architect, FinTech Global</div>
+</div>
+</div>
+</div>
+<!-- Quote Card 2 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="text-primary/10 absolute -right-4 -bottom-6 select-none pointer-events-none">
+<span class="material-symbols-outlined text-9xl">format_quote</span>
+</div>
+<div>
+<div class="flex items-center gap-1 text-tertiary-container mb-4">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface italic">
+              "Managing 120+ microservice REST payloads was our biggest bottleneck. With FlowForge's visual pipeline orchestration, our backend engineers assemble, test, and push compliant transformations in twenty minutes instead of three weeks."
+            </p>
+</div>
+<div class="mt-8 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Editorial portrait of a female VP of engineering with modern clean architectural backdrop, confident and technical aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0HQhKaIHoX3FS5rpkb8ZQAsa_wk6CZZTVQig7wXzsqU7INnIsH5E8uniFdprcip6ecZCzyY-uoMnT0U8Lt1rwP73DabPWz6MX3z5DgBphZQFuC_uOH7ek65N1eTGD5GXLrVpBpZF7BFDvgCkexbJmQTboT9I23khBTrUdm45ScHkhePNXGG6OyIwXPmekqMBKQZ42h4SRW4Wf4kIsirNRfDylbtWJiounLu5mLiIT_U6HBSroXXLf"/>
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-bold">Elena Rostova</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">VP of Data Engineering, Synthetix Stream</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Final High-Impact CTA Banner -->
+<section class="w-full py-16 lg:py-20 px-6 lg:px-12 bg-surface-container-high">
+<div class="max-w-7xl mx-auto rounded-2xl bg-surface-container-lowest p-8 lg:p-14 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+<!-- Background Graphic Accents -->
+<div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-primary-fixed/40 blur-2xl pointer-events-none"></div>
+<div class="max-w-2xl relative z-10 text-left">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-primary font-code-sm text-code-sm mb-3">
+          INSTANT DEPLOYMENT
+        </div>
+<h2 class="font-headline-lg text-headline-lg lg:text-4xl text-on-surface font-bold tracking-tight">
+          Start streaming your API payloads today.
+        </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-3">
+          Spin up a managed instance or connect your Kubernetes cluster via Helm charts in under 3 minutes.
+        </p>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto relative z-10">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md shadow-md hover:bg-primary transition-all duration-150" href="#auth-section">
+<span class="material-symbols-outlined text-lg">rocket_launch</span>
+<span>Launch Console</span>
+</a>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md shadow-sm hover:bg-surface-container transition-all duration-150" href="#auth-section">
+<span class="material-symbols-outlined text-lg">support_agent</span>
+<span>Talk to Architecture Specialist</span>
+</a>
+</div>
+</div>
+</section>
+</div></main><footer class="w-full bg-surface-container-low shadow-[0_-1px_8px_rgba(0,0,0,0.02)] mt-auto"><div class="max-w-7xl mx-auto px-6 lg:px-12 py-14"><div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12"><div class="col-span-2"><div class="flex items-center gap-2.5 mb-3"><div class="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-on-primary"><span class="material-symbols-outlined text-[18px]">hub</span></div><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface font-bold">FlowForge</span></div><p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm mb-4">Deterministic, low-latency ETL pipeline orchestration and payload state infrastructure engineered for data platform reliability.</p><div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-surface-container font-code-sm text-code-sm text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-secondary"></span><span>All systems operational • 99.99% SLA</span></div></div><div><div class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface font-semibold mb-3">Platform</div><ul class="space-y-2 font-body-sm text-body-sm text-on-surface-variant"><li><a class="hover:text-on-surface transition-colors" data-path="product" href="#">Pipeline Canvas</a></li><li><a class="hover:text-on-surface transition-colors" data-path="architecture" href="#">Distributed Engine</a></li><li><a class="hover:text-on-surface transition-colors" data-path="product" href="#">Schema Registry</a></li><li><a class="hover:text-on-surface transition-colors" data-path="product" href="#">Payload Inspector</a></li></ul></div><div><div class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface font-semibold mb-3">Resources</div><ul class="space-y-2 font-body-sm text-body-sm text-on-surface-variant"><li><a class="hover:text-on-surface transition-colors" data-path="documentation" href="#">API References</a></li><li><a class="hover:text-on-surface transition-colors" data-path="documentation" href="#">CLI Tooling</a></li><li><a class="hover:text-on-surface transition-colors" data-path="documentation" href="#">Architecture Blueprints</a></li><li><a class="hover:text-on-surface transition-colors" data-path="pricing" href="#">Deployment Tiers</a></li></ul></div><div><div class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface font-semibold mb-3">Compliance &amp; Trust</div><div class="flex flex-wrap gap-1.5 mb-3"><span class="inline-flex items-center px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container-high text-on-surface font-medium">SOC2 Type II</span><span class="inline-flex items-center px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container-high text-on-surface font-medium">HIPAA</span><span class="inline-flex items-center px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container-high text-on-surface font-medium">ISO 27001</span></div><p class="font-body-sm text-body-sm text-on-surface-variant">Zero-retention payload vaulting with hardware KMS encryption.</p></div></div><div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-body-sm text-body-sm text-on-surface-variant"><div class="flex items-center gap-6"><span>© 2025 FlowForge Systems, Inc. All rights reserved.</span><a class="hover:text-on-surface transition-colors" data-path="documentation" href="#">Privacy Policy</a><a class="hover:text-on-surface transition-colors" data-path="documentation" href="#">Terms of Service</a></div><div class="flex items-center gap-4 text-on-surface-variant"><a aria-label="Code Repository" class="hover:text-on-surface transition-colors" href="#"><span class="material-symbols-outlined text-[20px]">terminal</span></a><a aria-label="Global Network" class="hover:text-on-surface transition-colors" href="#"><span class="material-symbols-outlined text-[20px]">public</span></a><a aria-label="System Health" class="hover:text-on-surface transition-colors" href="#"><span class="material-symbols-outlined text-[20px]">monitoring</span></a></div></div></div></footer></body></html>

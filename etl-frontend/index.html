@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dynamic API-to-Visualizer ETL Pipeline | Zero-Code BI Platform</title>
+    <meta name="description" content="Schema-agnostic, zero-code REST API ETL pipeline that flattens arbitrary nested JSON trees via recursive DFS and renders interactive Recharts & DataGrid BI dashboards." />
+    <meta name="keywords" content="ETL Pipeline, REST API, JSON flattener, Data Visualizer, Recharts, Material-UI DataGrid, MERN Stack, Capstone" />
+    <meta name="author" content="Vedant Gupta (Roll No: 25001003138) - J.C. Bose UST, YMCA Faridabad" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='12 2 2 7 12 12 22 7 12 2'/><polyline points='2 17 12 22 22 17'/><polyline points='2 12 12 17 22 12'/></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&family=Love+Ya+Like+A+Sister&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&family=Geist+Pixel&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/geist-pixel@latest/index.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-base": "#0B0C10",
+              "surface-card": "#16181F",
+              "surface-card-hover": "#1D202A",
+              "text-primary": "#F7F8F8",
+              "text-secondary": "#8B8D98",
+              "text-muted": "#555866",
+              "border-hairline": "rgba(255, 255, 255, 0.08)",
+              "border-hairline-bright": "rgba(255, 255, 255, 0.16)",
+              "accent-emerald": "#3DD9B2",
+              "surface-dim": "#d2d9f4",
+              "inverse-on-surface": "#eef0ff",
+              "secondary-fixed-dim": "#68dba9",
+              "on-primary-container": "#eeefff",
+              "on-tertiary-fixed-variant": "#6e3900",
+              "secondary-container": "#82f5c1",
+              "tertiary-container": "#a65900",
+              "surface-container-lowest": "#ffffff",
+              "surface-variant": "#dae2fd",
+              "surface-container-highest": "#dae2fd",
+              "tertiary-fixed": "#ffdcc3",
+              "outline": "#737686",
+              "on-surface": "#131b2e",
+              "primary": "#004ac6",
+              "primary-container": "#2563eb",
+              "surface-bright": "#faf8ff",
+              "primary-fixed": "#dbe1ff",
+              "inverse-surface": "#283044",
+              "on-primary": "#ffffff",
+              "tertiary": "#824500",
+              "on-error": "#ffffff",
+              "error-container": "#ffdad6",
+              "on-secondary-fixed-variant": "#005137",
+              "inverse-primary": "#b4c5ff",
+              "on-tertiary": "#ffffff",
+              "on-tertiary-container": "#ffede1",
+              "secondary": "#006c4a",
+              "on-tertiary-fixed": "#2f1500",
+              "surface-container": "#eaedff",
+              "on-surface-variant": "#434655",
+              "secondary-fixed": "#85f8c4",
+              "on-secondary-container": "#00714e",
+              "outline-variant": "#c3c6d7",
+              "background": "#faf8ff",
+              "tertiary-fixed-dim": "#ffb77d",
+              "surface-tint": "#0053db",
+              "on-primary-fixed-variant": "#003ea8",
+              "on-primary-fixed": "#00174b",
+              "on-background": "#131b2e",
+              "surface-container-high": "#e2e7ff",
+              "on-secondary-fixed": "#002114",
+              "surface-container-low": "#f2f3ff",
+              "primary-fixed-dim": "#b4c5ff",
+              "on-error-container": "#93000a",
+              "error": "#ba1a1a",
+              "on-secondary": "#ffffff",
+              "surface": "#faf8ff"
+            },
+            fontFamily: {
+              sans: ["Geist", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+              heading: ["Geist", "sans-serif"]
+            }
+          }
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
