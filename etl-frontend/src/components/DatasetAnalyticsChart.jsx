@@ -423,35 +423,28 @@ export const DatasetAnalyticsChart = ({
             </select>
           </div>
 
-          {/* Y-Axis Metric(s) Selector */}
+          {/* Y-Axis Metric Selector (Dropdown) */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-mono text-[#8B8D98]">Y-Metric(s):</span>
-            <div className="flex items-center gap-1 overflow-x-auto max-w-[280px]">
-              {fieldSummary.numeric.length > 0 ? (
-                fieldSummary.numeric.slice(0, 5).map((f, idx) => {
-                  const isSelected = selectedYList.includes(f);
-                  const color = CHART_COLORS[idx % CHART_COLORS.length];
-                  return (
-                    <button
-                      key={f}
-                      type="button"
-                      onClick={() => handleToggleYAxis(f)}
-                      className={`px-2 py-1 rounded-md text-[11px] font-mono transition-all cursor-pointer flex items-center gap-1 border ${
-                        isSelected
-                          ? 'bg-[#1e2230] border-[#5064EC] text-[#faf7ff] font-medium shadow-sm'
-                          : 'bg-[#16181F] border-white/5 text-[#8B8D98] hover:text-[#F7F8F8]'
-                      }`}
-                      title={isSelected ? 'Click to deselect series' : 'Click to add series'}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isSelected ? color : '#555866' }} />
-                      <span>{f}</span>
-                    </button>
-                  );
-                })
-              ) : (
-                <span className="text-[11px] font-mono text-amber-400/80">Row Count Only</span>
-              )}
-            </div>
+            <span className="text-[11px] font-mono text-[#8B8D98]">Y-Axis:</span>
+            {fieldSummary.numeric.length > 0 ? (
+              <select
+                value={selectedYList[0] || fieldSummary.numeric[0] || ''}
+                onChange={(e) => setUserYList([e.target.value])}
+                className="bg-[#16181F] border border-white/10 text-xs font-mono text-[#F7F8F8] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#5064EC] cursor-pointer"
+              >
+                <optgroup label="🔢 Numeric Metrics">
+                  {fieldSummary.numeric.map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            ) : (
+              <span className="text-[11px] font-mono text-amber-400/80 bg-[#16181F] border border-white/10 px-2.5 py-1.5 rounded-lg">
+                Row Count Only
+              </span>
+            )}
           </div>
 
           {/* Aggregation Function Selector */}

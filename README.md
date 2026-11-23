@@ -1,5 +1,5 @@
 # ForgeFlow — Schema-Agnostic API-to-Analytics ETL Platform
-
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Vedant169/ForgeFlow)
 ForgeFlow is a full-stack, multi-user ETL platform that connects to external JSON REST APIs, transforms nested and irregular JSON payloads into tabular records, infers field types, persists pipeline runs in MongoDB, and presents the resulting datasets through an interactive dashboard with dynamic analytics visualization.
 
 The platform is containerized with Docker and Docker Compose, enforces role-based access control (RBAC), and ensures strict per-user pipeline ownership and data isolation.
@@ -7,7 +7,7 @@ The platform is containerized with Docker and Docker Compose, enforces role-base
 ---
 
 ## Architecture
-
+  
 ```mermaid
 flowchart TD
     User([Authenticated User]) -->|Browser| Frontend[React 19 + Vite Dashboard]
