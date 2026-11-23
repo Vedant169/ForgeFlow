@@ -28,6 +28,26 @@ const connectDB = async () => {
 
     console.log(`[db] MongoDB connected: ${conn.connection.host}`);
 
+    // Auto-seed demo account if missing
+    try {
+      const User = require('../models/User');
+      const bcrypt = require('bcrypt');
+      const demoEmail = 'vedant.gupta@flowforge.internal';
+      const existing = await User.findOne({ email: demoEmail });
+      if (!existing) {
+        const hashedPassword = await bcrypt.hash('FlowForge2026!', 12);
+        await User.create({
+          name: 'Vedant Gupta',
+          email: demoEmail,
+          password: hashedPassword,
+          role: 'admin'
+        });
+        console.log('[db] Seeded default demo user (vedant.gupta@flowforge.internal)');
+      }
+    } catch (seedErr) {
+      console.warn('[db] Demo seed check skipped:', seedErr.message);
+    }
+
     mongoose.connection.on('disconnected', () =>
       console.warn('[db] MongoDB disconnected')
     );

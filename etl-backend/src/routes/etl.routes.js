@@ -6,24 +6,11 @@ const {
   runPipeline,
   getPipelineHistory,
   getPipelineRecordById,
+  getPipelineAnalytics,
 } = require('../controllers/etl.controller');
 
 const router = Router();
 
-/**
- * @route  POST /api/etl/run
- * @desc   Execute the full ETL pipeline against a remote JSON endpoint.
- * @access Public
- *
- * Body:
- *   url          {string}   required  Target REST endpoint URL.
- *   method       {string}   optional  HTTP method (GET|POST). Default: GET.
- *   headers      {object}   optional  Custom request headers.
- *   bearerToken  {string}   optional  Bearer token for Authorization header.
- *   body         {object}   optional  Request body (POST only).
- *   persist      {boolean}  optional  Persist results to MongoDB. Default: false.
- *   timeoutMs    {number}   optional  Request timeout ms. Default: 30000.
- */
 router.post(
     "/run",
     protect,
@@ -34,6 +21,12 @@ router.get(
     "/history",
     protect,
     getPipelineHistory
+);
+
+router.get(
+    "/history/:id/analytics",
+    protect,
+    getPipelineAnalytics
 );
 
 router.get(
