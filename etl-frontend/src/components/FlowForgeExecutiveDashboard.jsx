@@ -10,85 +10,9 @@ import {
 } from 'recharts';
 import { exportToCsv, exportToJson } from '../services/clientEtl';
 import { SAMPLE_DATASETS } from '../data/sampleDatasets';
+import { DatasetAnalyticsChart } from './DatasetAnalyticsChart';
 
-// Custom sleek glassmorphic telemetry tooltip
-const CustomTelemetryTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-    return (
-      <div className="rounded-xl bg-[#0d0e12]/95 backdrop-blur-md p-3 border border-white/10 shadow-2xl font-mono text-xs flex flex-col gap-1.5 min-w-[210px]">
-        <div className="flex items-center justify-between pb-1 mb-1 border-b border-white/10">
-          <span className="text-[#8B8D98] text-[11px]">{label}</span>
-          <span className="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-[#5064ec]/20 text-[#bcc3ff]">
-            {data.protocol || 'REST'}
-          </span>
-        </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="flex items-center gap-1.5 text-[#8B8D98]">
-            <span className="w-2 h-2 rounded-full bg-[#5064EC]" />
-            <span>Ingress Rate:</span>
-          </span>
-          <strong className="text-[#F7F8F8] font-mono">{Number(data.ingressRate).toLocaleString()} msgs/s</strong>
-        </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="flex items-center gap-1.5 text-[#8B8D98]">
-            <span className="w-2 h-2 rounded-full bg-[#3DD9B2]" />
-            <span>Processed / Dedup:</span>
-          </span>
-          <strong className="text-[#3DD9B2] font-mono">{Number(data.processedRate).toLocaleString()} msgs/s</strong>
-        </div>
-        <div className="flex items-center justify-between text-[11px] text-[#555866] pt-1 border-t border-white/5">
-          <span>Target Sink:</span>
-          <span className="text-[#3DD9B2] font-mono">MongoDB (pipeline_records)</span>
-        </div>
-        <div className="flex items-center justify-between text-[11px] text-[#555866]">
-          <span>Spike Latency:</span>
-          <span className="text-[#F7F8F8] font-mono">{data.latency || 18}ms</span>
-        </div>
-      </div>
-    );
-  }
-  return null;
-};
-
-// Generate clean zero-baseline initial points for new users
-const generateCleanTelemetry = () => {
-  const points = [];
-  const now = Date.now();
-  for (let i = 11; i >= 0; i--) {
-    const t = new Date(now - i * 6000);
-    const timeStr = t.toLocaleTimeString('en-US', { hour12: false });
-    points.push({
-      time: timeStr,
-      ingressRate: 0,
-      processedRate: 0,
-      latency: 0,
-      protocol: 'REST',
-      isPipelineRun: false,
-    });
-  }
-  return points;
-};
-
-// Generate realistic rolling initial time points when active
-const generateInitialTelemetry = () => {
-  const points = [];
-  const now = Date.now();
-  for (let i = 11; i >= 0; i--) {
-    const t = new Date(now - i * 6000);
-    const timeStr = t.toLocaleTimeString('en-US', { hour12: false });
-    const base = 2100 + Math.floor(Math.sin(i * 0.8) * 500 + (i % 2 === 0 ? 300 : -200));
-    points.push({
-      time: timeStr,
-      ingressRate: base,
-      processedRate: Math.round(base * 0.95),
-      latency: Math.floor(18 + Math.random() * 12),
-      protocol: i % 4 === 0 ? 'REST' : i % 4 === 1 ? 'GRPC' : i % 4 === 2 ? 'KAFKA' : 'REST',
-      isPipelineRun: false,
-    });
-  }
-  return points;
-};
+// ─── FlowForgeExecutiveDashboard ───────────────────────────────────────────────
 
 export const FlowForgeExecutiveDashboard = ({
   data = [],
@@ -119,12 +43,12 @@ export const FlowForgeExecutiveDashboard = ({
   isMongoLoading = false,
   onRefreshMongo,
   onFetchMongoRecord,
+  token = '',
 }) => {
   const handleBack = onBackToLogin || onGoHome;
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'mongodb' | 'pipelines'
   const [timeframe, setTimeframe] = useState('15m');
   const [isStreamPaused, setIsStreamPaused] = useState(false);
-  const [selectedProtocol, setSelectedProtocol] = useState('all');
   const [searchFilter, setSearchFilter] = useState('');
   const [tableMode, setTableMode] = useState('liveRows'); // 'liveRows' | 'mongoRecords'
   const [showApiAdvanced, setShowApiAdvanced] = useState(false);
@@ -141,69 +65,6 @@ export const FlowForgeExecutiveDashboard = ({
   // Document Inspector State
   const [inspectingDoc, setInspectingDoc] = useState(null);
   const [isLoadingDoc, setIsLoadingDoc] = useState(false);
-
-  // Dynamic Telemetry State - clean 0 baseline when no data is loaded
-  const [telemetryStream, setTelemetryStream] = useState(() => (data && data.length > 0 ? generateInitialTelemetry() : generateCleanTelemetry()));
-  const prevRunRef = useRef({ rowCount: 0, durationMs: 0 });
-
-  // Ingestion Event: Update chart in real-time whenever an ingestion finishes!
-  useEffect(() => {
-    if (rowCount > 0 && (rowCount !== prevRunRef.current.rowCount || durationMs !== prevRunRef.current.durationMs)) {
-      prevRunRef.current = { rowCount, durationMs };
-      const nowStr = new Date().toLocaleTimeString('en-US', { hour12: false });
-      
-      // Calculate realistic telemetry spike based on actual ingested rows and duration
-      const effectiveDuration = Math.max(durationMs, 15);
-      const computedRate = Math.max(Math.round((rowCount * 1000) / effectiveDuration) * 8, 3800);
-      const processed = Math.round(computedRate * 0.985);
-
-      const spikePoint = {
-        time: nowStr,
-        ingressRate: computedRate,
-        processedRate: processed,
-        latency: durationMs || 22,
-        protocol: selectedProtocol === 'all' ? 'REST' : selectedProtocol.toUpperCase(),
-        isPipelineRun: true,
-      };
-
-      setTelemetryStream((prev) => [...prev.slice(-15), spikePoint]);
-    }
-  }, [rowCount, durationMs, data, selectedProtocol]);
-
-  // Periodic heartbeat stream when stream is active (smooth real-time tick)
-  useEffect(() => {
-    if (isStreamPaused || !data || data.length === 0) return;
-
-    const interval = setInterval(() => {
-      const nowStr = new Date().toLocaleTimeString('en-US', { hour12: false });
-      setTelemetryStream((prev) => {
-        const last = prev[prev.length - 1] || { ingressRate: 2400, processedRate: 2300 };
-        // Gentle micro-oscillation around steady-state cluster ingress
-        const delta = (Math.random() - 0.48) * 400;
-        const newIngress = Math.max(1400, Math.min(7200, Math.round(last.ingressRate + delta)));
-        const newProcessed = Math.round(newIngress * (0.95 + Math.random() * 0.03));
-        
-        const tickPoint = {
-          time: nowStr,
-          ingressRate: newIngress,
-          processedRate: newProcessed,
-          latency: Math.floor(14 + Math.random() * 12),
-          protocol: selectedProtocol === 'all' ? (Math.random() > 0.4 ? 'REST' : 'GRPC') : selectedProtocol.toUpperCase(),
-          isPipelineRun: false,
-        };
-
-        return [...prev.slice(-15), tickPoint];
-      });
-    }, 2800);
-
-    return () => clearInterval(interval);
-  }, [isStreamPaused, selectedProtocol, data]);
-
-  // Filter chart data by protocol if selected
-  const chartDisplayData = useMemo(() => {
-    if (selectedProtocol === 'all') return telemetryStream;
-    return telemetryStream.filter((p) => p.protocol.toLowerCase() === selectedProtocol.toLowerCase() || p.isPipelineRun);
-  }, [telemetryStream, selectedProtocol]);
 
   // Actual flattened data rows from current pipeline execution
   const displayRows = data && data.length > 0 ? data : [];
@@ -269,10 +130,10 @@ export const FlowForgeExecutiveDashboard = ({
     }
   };
 
-  // Current Ingress Throughput calculated from last point
-  const currentIngressMsgs = displayRows.length > 0 && telemetryStream.length > 0
-    ? telemetryStream[telemetryStream.length - 1].ingressRate
-    : 0;
+  // Current Ingress Throughput calculated from actual pipeline duration and processed rows
+  const currentIngressMsgs = durationMs > 0 && displayRows.length > 0
+    ? Math.round((displayRows.length / (durationMs / 1000)))
+    : (displayRows.length > 0 ? displayRows.length : 0);
 
   // Shared MongoDB collection table renderer (used in both MongoDB Live Stream page & Overview sub-tab)
   const renderMongoRecordsTable = () => (
@@ -1357,187 +1218,91 @@ export const FlowForgeExecutiveDashboard = ({
               </div>
             </div>
 
-            {/* Main Interactive Telemetry Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              {/* Left Column: Reactive Recharts Telemetry Chart (8 cols) */}
-              <div className="lg:col-span-8 rounded-2xl bg-[#16181F] p-6 border border-white/5 flex flex-col justify-between relative overflow-hidden">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-lg font-serif text-[#F7F8F8]">Dynamic Ingress & Processing Telemetry</h2>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase bg-[#3DD9B2]/20 text-[#3DD9B2] font-semibold flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#3DD9B2] animate-pulse" />
-                        Live Reactive
-                      </span>
-                    </div>
-                    <span className="text-xs text-[#8B8D98] font-mono">
-                      Real-time throughput samples • Responds immediately to pipeline ingestion
-                    </span>
-                  </div>
+            {/* ── 1. Dynamic MongoDB Dataset Analytics & Visualization (Full Dashboard Width) ── */}
+            <div className="w-full flex flex-col">
+              <DatasetAnalyticsChart
+                mongoRecords={mongoRecords}
+                currentData={data}
+                currentMetadata={fieldProfiles}
+                currentUrl={url}
+                token={token}
+                onRunSamplePipeline={onRunSamplePipeline}
+              />
+            </div>
 
-                  {/* Filter Protocol Pills */}
-                  <div className="flex items-center gap-1.5 p-1 rounded-full bg-[#0d0e12]">
-                    {['all', 'rest', 'grpc', 'kafka'].map((p) => (
-                      <button
-                        key={p}
-                        onClick={() => setSelectedProtocol(p)}
-                        className={`px-3 py-1 rounded-full text-xs font-mono transition-all cursor-pointer ${
-                          selectedProtocol === p
-                            ? 'bg-[#5064ec] text-[#faf7ff] font-medium shadow-sm'
-                            : 'text-[#8B8D98] hover:text-[#F7F8F8]'
-                        }`}
-                      >
-                        {p.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
+            {/* ── 2. Node Cluster & Sinks (Positioned below the graph, Full Width, Responsive 3-Column Grid) ── */}
+            <div className="w-full rounded-2xl bg-[#16181F] p-6 border border-white/5 flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <h2 className="text-lg font-serif text-[#F7F8F8]">Node Cluster & Sinks</h2>
+                  <span className="text-[10px] uppercase font-semibold text-[#3DD9B2] bg-[#3DD9B2]/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#3DD9B2] animate-pulse" />
+                    All Green
+                  </span>
                 </div>
-
-                {/* Legend Badges */}
-                <div className="flex items-center gap-4 mb-2 text-xs font-mono">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#5064EC]" />
-                    <span className="text-[#8B8D98]">Ingress Throughput (msgs/s)</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#3DD9B2]" />
-                    <span className="text-[#8B8D98]">Deduped & Persisted (MongoDB)</span>
-                  </div>
-                </div>
-
-                {/* Real-Time Recharts AreaChart Canvas */}
-                <div className="w-full h-64 relative">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartDisplayData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="chartIngressGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#5064EC" stopOpacity={0.45} />
-                          <stop offset="95%" stopColor="#5064EC" stopOpacity={0.0} />
-                        </linearGradient>
-                        <linearGradient id="chartProcessGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3DD9B2" stopOpacity={0.35} />
-                          <stop offset="95%" stopColor="#3DD9B2" stopOpacity={0.0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                      <XAxis
-                        dataKey="time"
-                        stroke="#555866"
-                        fontSize={11}
-                        tickLine={false}
-                        axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
-                        fontFamily="'Love Ya Like A Sister', cursive"
-                      />
-                      <YAxis
-                        stroke="#555866"
-                        fontSize={11}
-                        tickLine={false}
-                        axisLine={false}
-                        fontFamily="'Love Ya Like A Sister', cursive"
-                        tickFormatter={(v) => `${v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v}`}
-                      />
-                      <Tooltip content={<CustomTelemetryTooltip />} />
-                      <Area
-                        type="monotone"
-                        dataKey="ingressRate"
-                        stroke="#5064EC"
-                        strokeWidth={2.5}
-                        fillOpacity={1}
-                        fill="url(#chartIngressGrad)"
-                        name="Ingress Rate"
-                        isAnimationActive={false}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="processedRate"
-                        stroke="#3DD9B2"
-                        strokeWidth={2}
-                        fillOpacity={1}
-                        fill="url(#chartProcessGrad)"
-                        name="Processed Rate"
-                        isAnimationActive={false}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-
-                {/* Sub-Chart Status Strip */}
-                <div className="mt-3 pt-3 flex flex-wrap items-center justify-between text-xs font-mono text-[#8B8D98] bg-[#0d0e12] px-4 py-2 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <span className="text-[#555866]">
-                      Buffer Flush: <strong className="text-[#F7F8F8] font-normal">{displayRows.length > 0 ? 'Every 50ms' : 'Standby'}</strong>
-                    </span>
-                    <span>•</span>
-                    <span className="text-[#555866]">
-                      Dedup Ratio: <strong className="text-[#3DD9B2] font-normal">{displayRows.length > 0 ? '98.5%' : '0.0%'}</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${displayRows.length > 0 ? 'bg-[#3DD9B2] animate-pulse' : 'bg-white/20'}`} />
-                    <span className="text-[#F7F8F8]">{displayRows.length > 0 ? 'MongoDB Live Sink: Active' : 'MongoDB Sink: Ready'}</span>
-                  </div>
+                <div className="flex items-center gap-4 text-xs font-mono text-[#555866]">
+                  <span className="hidden sm:inline">eBPF Zero-Copy Enabled</span>
+                  <span className="text-[#bcc3ff] font-medium">Sync: 100% Real-Time</span>
                 </div>
               </div>
 
-              {/* Right Column: Node Cluster Health (4 cols) */}
-              <div className="lg:col-span-4 rounded-2xl bg-[#16181F] p-6 border border-white/5 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-serif text-[#F7F8F8]">Node Cluster & Sinks</h2>
-                    <span className="text-[10px] uppercase font-semibold text-[#3DD9B2] bg-[#3DD9B2]/10 px-2 py-0.5 rounded-full">
-                      All Green
+              {/* Worker Nodes & DB Sinks in Responsive 3-Column Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                {/* Node 1: MongoDB Local Daemon */}
+                <div className="p-4 rounded-xl bg-[#1f1f24] border border-white/5 flex flex-col justify-between hover:bg-[#25252c] transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#3DD9B2]" />
+                      <span className="font-mono text-xs font-medium text-[#F7F8F8]">MongoDB Local Daemon</span>
+                    </div>
+                    <span className="text-[10px] font-semibold text-[#3DD9B2] bg-[#3DD9B2]/10 px-2 py-0.5 rounded-full">
+                      CONNECTED
                     </span>
                   </div>
-
-                  {/* Worker Nodes & DB Sinks */}
-                  <div className="flex flex-col gap-2.5">
-                    <div className="p-3 rounded-xl bg-[#1f1f24] flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#3DD9B2]" />
-                          <span className="font-mono text-xs font-medium text-[#F7F8F8]">MongoDB Local Daemon</span>
-                          <span className="text-[10px] text-[#3DD9B2] font-mono">(:27017)</span>
-                        </div>
-                        <span className="text-[11px] font-mono text-[#8B8D98] mt-0.5">
-                          {mongoTotal || mongoRecords.length} records • pipeline_records
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-semibold text-[#3DD9B2]">CONNECTED</span>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-[#1f1f24] flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#5064ec]" />
-                          <span className="font-mono text-xs font-medium text-[#F7F8F8]">Express ETL Stream Router</span>
-                          <span className="text-[10px] text-[#555866] font-mono">(:5000)</span>
-                        </div>
-                        <span className="text-[11px] font-mono text-[#8B8D98] mt-0.5">64KB Chunk Buffer • DFS Unwinder</span>
-                      </div>
-                      <span className="text-[10px] font-semibold text-[#3DD9B2]">ONLINE</span>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-[#1f1f24] flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#3DD9B2]" />
-                          <span className="font-mono text-xs font-medium text-[#F7F8F8]">Runtime Type Inferencer</span>
-                          <span className="text-[10px] text-[#555866] font-mono">(Regex Engine)</span>
-                        </div>
-                        <span className="text-[11px] font-mono text-[#8B8D98] mt-0.5">
-                          {detectedKeysCount > 0 ? `${detectedKeysCount} keys • ISO-8601 & Numeric` : 'Awaiting payload • Regex Engine Standby'}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-semibold text-[#3DD9B2]">
-                        {detectedKeysCount > 0 ? 'ACTIVE' : 'STANDBY'}
-                      </span>
-                    </div>
+                  <div className="flex items-baseline justify-between pt-2 border-t border-white/5">
+                    <span className="text-[11px] font-mono text-[#8B8D98]">
+                      {mongoTotal || mongoRecords.length} records • pipeline_records
+                    </span>
+                    <span className="text-[11px] text-[#3DD9B2] font-mono font-semibold">:27017</span>
                   </div>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-[#555866]">
-                  <span>eBPF Zero-Copy Enabled</span>
-                  <span className="text-[#bcc3ff]">Sync: 100% Real-Time</span>
+                {/* Node 2: Express ETL Stream Router */}
+                <div className="p-4 rounded-xl bg-[#1f1f24] border border-white/5 flex flex-col justify-between hover:bg-[#25252c] transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#5064ec]" />
+                      <span className="font-mono text-xs font-medium text-[#F7F8F8]">Express ETL Stream Router</span>
+                    </div>
+                    <span className="text-[10px] font-semibold text-[#3DD9B2] bg-[#3DD9B2]/10 px-2 py-0.5 rounded-full">
+                      ONLINE
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-between pt-2 border-t border-white/5">
+                    <span className="text-[11px] font-mono text-[#8B8D98]">64KB Chunk Buffer • DFS Unwinder</span>
+                    <span className="text-[11px] text-[#5064ec] font-mono font-semibold">:5000</span>
+                  </div>
+                </div>
+
+                {/* Node 3: Runtime Type Inferencer */}
+                <div className="p-4 rounded-xl bg-[#1f1f24] border border-white/5 flex flex-col justify-between hover:bg-[#25252c] transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#3DD9B2]" />
+                      <span className="font-mono text-xs font-medium text-[#F7F8F8]">Runtime Type Inferencer</span>
+                    </div>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      detectedKeysCount > 0 ? 'text-[#3DD9B2] bg-[#3DD9B2]/10' : 'text-[#8B8D98] bg-white/5'
+                    }`}>
+                      {detectedKeysCount > 0 ? 'ACTIVE' : 'STANDBY'}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-between pt-2 border-t border-white/5">
+                    <span className="text-[11px] font-mono text-[#8B8D98]">
+                      {detectedKeysCount > 0 ? `${detectedKeysCount} keys • ISO-8601 & Numeric` : 'Awaiting payload • Standby'}
+                    </span>
+                    <span className="text-[11px] text-[#8B8D98] font-mono">Regex Engine</span>
+                  </div>
                 </div>
               </div>
             </div>

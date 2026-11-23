@@ -426,3 +426,48 @@ export const fetchMongoRecordById = async (id, token) => {
         return null;
     }
 };
+
+export const fetchPipelineAnalytics = async ({
+    id,
+    xAxis,
+    yAxis,
+    chartType,
+    aggregation,
+    limit,
+    token
+}) => {
+    if (!id) return null;
+
+    try {
+        const params = new URLSearchParams();
+        if (xAxis) params.append('xAxis', xAxis);
+        if (yAxis) {
+            if (Array.isArray(yAxis)) {
+                params.append('yAxis', yAxis.join(','));
+            } else {
+                params.append('yAxis', yAxis);
+            }
+        }
+        if (chartType) params.append('chartType', chartType);
+        if (aggregation) params.append('aggregation', aggregation);
+        if (limit) params.append('limit', limit);
+
+        const qs = params.toString();
+        const url = `/api/etl/history/${id}/analytics${qs ? `?${qs}` : ''}`;
+
+        const res = await fetch(url, {
+            headers: {
+                ...(token ? { Authorization: `Bearer ${token}` } : {})
+            }
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+        }
+
+        return await res.json();
+    } catch (err) {
+        console.error(`Failed to fetch analytics for ${id}:`, err);
+        return null;
+    }
+};

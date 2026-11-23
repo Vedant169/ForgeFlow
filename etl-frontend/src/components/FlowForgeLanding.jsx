@@ -85,7 +85,12 @@ export const FlowForgeLanding = ({
           if (onEnterApp) onEnterApp(data.token);
         }, 400);
       } else {
-        const msg = data?.message || `Authentication failed (HTTP ${res.status})`;
+        let msg = data?.message;
+        if (res.status === 504 || res.status === 502) {
+          msg = 'Backend server is offline. Please make sure "npm run dev" is running in etl-backend (port 5000).';
+        } else if (!msg) {
+          msg = `Authentication failed (HTTP ${res.status})`;
+        }
         setAuthError(msg);
       }
     } catch (err) {
