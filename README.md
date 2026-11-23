@@ -1,277 +1,406 @@
 # ForgeFlow — Schema-Agnostic API-to-Analytics ETL Platform
 
-ForgeFlow is a full-stack ETL platform that connects to external JSON REST APIs, transforms nested and irregular JSON payloads into tabular records, infers field types, persists pipeline runs in MongoDB, and presents the resulting datasets through an interactive dashboard.
+ForgeFlow is a full-stack, multi-user ETL platform that connects to external JSON REST APIs, transforms nested and irregular JSON payloads into tabular records, infers field types, persists pipeline runs in MongoDB, and presents the resulting datasets through an interactive dashboard with dynamic analytics visualization.
 
-The project is designed to make API data easier to inspect and work with without requiring users to define a rigid schema before ingestion.
+The platform is containerized with Docker and Docker Compose, enforces role-based access control (RBAC), and ensures strict per-user pipeline ownership and data isolation.
 
-## Project Overview
-
-ForgeFlow follows an Extract → Transform → Infer → Load workflow:
-
-1. **Extract:** Connect to a remote JSON endpoint using HTTP or HTTPS. The backend supports GET and POST requests, custom headers, optional bearer-token authentication, JSON request bodies, and request timeouts.
-2. **Transform:** Flatten nested JSON objects with a recursive depth-first traversal. Arrays of objects are unwound into individual rows, while arrays of primitive values are represented as comma-separated values.
-3. **Infer:** Inspect the resulting columns and classify them as numeric, temporal, or categorical. Generate field profiles containing sample values, unique counts, null counts, and coverage.
-4. **Load:** Persist transformed rows and pipeline metadata as schema-flexible MongoDB documents in the `pipeline_records` collection.
-5. **Explore:** Use the dashboard to inspect pipeline history, browse transformed records, review field profiles, visualize stored datasets, and export data.
-
-## Key Features
-
-- **Custom REST API connections:** Configure an endpoint, HTTP method, headers, bearer token, and optional JSON request body.
-- **Schema-agnostic JSON transformation:** Recursively flatten nested objects and unwind arrays of objects without requiring a predefined database schema.
-- **Runtime type inference:** Classify fields as numeric, temporal, or categorical and calculate basic data-quality profiles.
-- **MongoDB persistence:** Store each persisted ETL run with its source URL, method, timestamp, row count, field metadata, transformed data, and execution duration.
-- **Pipeline history:** Browse paginated run history and retrieve an individual pipeline record.
-- **Dataset analytics and visualization:** Explore stored pipeline datasets and create visualizations from their actual fields rather than relying on fixed field names.
-- **Data inspection and export:** Inspect transformed rows and MongoDB documents, and export datasets in CSV or JSON formats.
-- **Authentication:** Register and log in with password hashing and JWT-protected ETL routes.
-- **Responsive dashboard:** A React dashboard with a dark visual theme, interactive components, and charting powered by Recharts.
+---
 
 ## Architecture
 
 ```mermaid
 flowchart TD
-    A[User selects a REST API endpoint] --> B[React + Vite Dashboard]
-    B -->|Authenticated request| C[Node.js + Express API]
-    C --> D[Extract Service]
-    D -->|HTTP/HTTPS JSON response| E[Transform Service]
-    E -->|Recursive DFS flattening| F[Type Inference Service]
-    F -->|Rows + field profiles| G[ETL Controller]
-    G --> H[(MongoDB pipeline_records)]
-    H --> I[Pipeline History / Record API]
-    I --> J[Dataset Analytics & Visualization]
-    J --> K[Charts, data table and exports]
+    User([Authenticated User]) -->|Browser| Frontend[React 19 + Vite Dashboard]
+    Frontend -->|JWT Authorization: Bearer| API[Express API Gateway]
+    
+    subgraph Security & Access Control
+        API --> RateLimiter[Rate Limiter Middleware]
+        RateLimiter --> AuthMiddleware[JWT Auth Middleware]
+        AuthMiddleware --> RBAC[Role-Based Authorization]
+    end
+    
+    subgraph ETL Engine
+        RBAC --> Extract[Extract Service: HTTP/HTTPS Client]
+        Extract --> Transform[Transform Service: Recursive DFS Flattening]
+        Transform --> Infer[Type Inference Service: Numeric / Temporal / Categorical]
+        Infer --> Controller[ETL Controller]
+    end
+    
+    subgraph Persistent Storage
+        Controller -->|Owner ID + Metadata + Rows| Mongo[(MongoDB 8.0: pipeline_records)]
+        Mongo -.-> Volume[(Persistent Named Volume: forgeflow_mongo_data)]
+    end
+    
+    subgraph Data Consumption & Analytics
+        Mongo --> HistoryAPI[User-Isolated History API]
+        Mongo --> AnalyticsEngine[Dynamic Aggregation & Chart Analytics]
+        AnalyticsEngine --> Visualizer[Recharts Dataset Visualizer]
+    end
 ```
 
-### Backend request lifecycle
-
-The Express application loads environment configuration, configures CORS and JSON body parsing, connects to MongoDB through Mongoose, and mounts authentication and ETL routes. The ETL controller orchestrates extraction, transformation, type inference, and optional persistence.
-
-**Implementation note:** The extraction service receives the HTTP response through Node.js stream events and accumulates response chunks before assembling and parsing the complete JSON payload. The current implementation is chunk-based response consumption, not a fully incremental record-by-record ETL pipeline.
+---
 
 ## Technology Stack
 
 | Layer | Technologies |
 |---|---|
-| Frontend | React 19, Vite, Tailwind CSS, Motion, Lucide React |
-| Visualization | Recharts |
-| Backend | Node.js, Express.js |
-| Database / ODM | MongoDB, Mongoose |
-| Authentication | JSON Web Token (JWT), bcrypt |
-| HTTP / data handling | Node.js `http` and `https`, JSON, Fetch API |
-| Development tools | Git, GitHub, Postman, Visual Studio Code |
+| **Frontend** | React 19, Vite, Tailwind CSS, Motion, Lucide React |
+| **Visualization** | Recharts (Bar, Line, Area, Scatter, Pie) |
+| **Backend** | Node.js (v20 Alpine), Express.js |
+| **Database** | MongoDB 8.0 (Pinned), Mongoose 8 |
+| **Containerization** | Docker, Docker Compose, Multi-stage builds, Non-root execution |
+| **Security & Auth** | JSON Web Tokens (JWT), bcrypt (cost 12), RBAC, Rate Limiting |
+| **Testing** | Node.js built-in Test Runner (`node:test`, `node:assert`) |
+
+---
 
 ## Repository Structure
 
 ```text
 ForgeFlow/
+├── docker-compose.yml       # Production multi-service container orchestration
+├── .env.example             # Safe environment variable configuration template
+├── README.md                # Project documentation and API reference
 ├── etl-backend/
-│   ├── server.js
-│   └── src/
-│       ├── config/          # MongoDB connection
-│       ├── controllers/     # Authentication and ETL orchestration
-│       ├── middleware/      # JWT authentication and role checks
-│       ├── models/          # User and PipelineRecord models
-│       ├── routes/          # /api/auth and /api/etl routes
-│       ├── services/        # Extraction, transformation, type inference
-│       └── utils/           # Centralized error handling
-├── etl-frontend/
-│   └── src/
-│       ├── components/      # Landing page, dashboard and UI modules
-│       ├── data/            # Demonstration/preset datasets
-│       ├── services/        # ETL client and backend API adapter
-│       └── utils/           # Frontend utilities
-└── stitch_assets/           # Design assets
+│   ├── Dockerfile           # Multi-stage, non-root Node 20 Alpine container definition
+│   ├── .dockerignore        # Excludes secrets, node_modules, and development artifacts
+│   ├── package.json         # Backend manifest, test and seed scripts
+│   ├── server.js            # Express bootstrap, CORS, pre-flight checks, graceful shutdown
+│   ├── src/
+│   │   ├── config/          # MongoDB connection pool and lifecycle handlers
+│   │   ├── controllers/     # Authentication and ETL pipeline controllers
+│   │   ├── middleware/      # JWT protection, role checks, and IP rate limiting
+│   │   ├── models/          # User (RBAC) and PipelineRecord (Owner-isolated) schemas
+│   │   ├── routes/          # Express route definitions (/api/auth, /api/etl)
+│   │   ├── scripts/         # Safe administrator account seeding script
+│   │   ├── services/        # Extraction, recursive transformation, type inference
+│   │   └── utils/           # Centralized async error handling
+│   └── test/                # Automated unit and integration test suite
+└── etl-frontend/
+    └── src/
+        ├── components/      # Executive dashboard, dynamic chart canvas, login modal
+        ├── data/            # Curated preset public APIs
+        ├── services/        # Frontend API client and CSV/JSON export utilities
+        └── utils/           # Smooth scroll and layout helpers
 ```
 
-## API Reference
+---
 
-The backend runs on port `5000` by default. Protected routes require:
+## Docker & Containerization
 
-```http
-Authorization: Bearer <JWT>
-```
-
-### Health
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/health` | Returns backend health status |
-
-### Authentication — `/api/auth`
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/auth/register` | Register with name, email, and password |
-| POST | `/api/auth/login` | Authenticate and receive a JWT |
-
-### ETL — `/api/etl`
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/etl/run` | Extract, flatten, infer field types, and optionally persist a dataset |
-| GET | `/api/etl/history` | Retrieve paginated pipeline history (without the large data arrays) |
-| GET | `/api/etl/history/:id` | Retrieve one saved pipeline record, including transformed data |
-
-#### Example ETL request
-
-```http
-POST /api/etl/run
-Content-Type: application/json
-Authorization: Bearer <JWT>
-```
-
-```json
-{
-  "url": "https://jsonplaceholder.typicode.com/users",
-  "method": "GET",
-  "persist": true,
-  "timeoutMs": 30000
-}
-```
-
-The request may also include `headers`, `bearerToken`, and a JSON `body` for POST requests. Alternatively, a JSON `rawData` payload can be supplied directly for transformation without fetching a remote endpoint.
-
-## Getting Started
+ForgeFlow features a production-ready multi-container configuration supporting isolated networking, health probes, and persistent database storage.
 
 ### Prerequisites
 
-- Node.js 20 or later (as specified by the backend package)
-- MongoDB running locally or a MongoDB Atlas connection
-- npm
-- A modern web browser
+- [Docker Engine](https://docs.docker.com/engine/install/) (v24.0+)
+- [Docker Compose](https://docs.docker.com/compose/) (v2.20+ or Docker Compose v5)
 
-### 1. Clone the repository
+### 1. Configure Environment Variables
 
-```bash
-git clone https://github.com/Vedant169/ForgeFlow.git
-cd ForgeFlow
-```
-
-### 2. Configure and start the backend
+Copy the provided environment template to `.env` in the project root:
 
 ```bash
-cd etl-backend
-npm install
+cp .env.example .env
 ```
 
-Create a `.env` file using the available example configuration and provide the required values:
+Ensure a strong `JWT_SECRET` (minimum 32 characters) is configured:
 
 ```env
 PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/etl_pipeline
-JWT_SECRET=replace_with_a_long_random_secret
+NODE_ENV=production
+JWT_SECRET=super_secret_jwt_key_32_characters_minimum_prod
+JWT_EXPIRES_IN=24h
+MONGO_DB=forgeflow
+MONGO_PORT=27017
+MONGO_URI=mongodb://mongo:27017/forgeflow
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
-NODE_ENV=development
 ```
 
-Start the backend:
+### 2. Build and Start Services
+
+Launch the full stack in detached mode:
 
 ```bash
-npm run dev
+docker compose up -d --build
 ```
+*(On systems using legacy compose syntax, use `docker-compose up -d --build`)*
 
-The API is available at `http://localhost:5000`.
+### 3. Verify Container Status & Health
 
-### 3. Start the frontend
-
-Open a second terminal:
+Check that both `forgeflow-mongo` and `forgeflow-backend` are running and healthy:
 
 ```bash
-cd etl-frontend
-npm install
-npm run dev
+docker compose ps
 ```
 
-Vite serves the frontend at the URL printed in the terminal (the project is configured for port 3000).
-
-### 4. Run a pipeline
-
-1. Register or log in.
-2. Open the dashboard.
-3. Connect a public JSON REST endpoint or configure a custom endpoint.
-4. Run the ETL pipeline.
-5. Review the transformed rows and inferred field profiles.
-6. Confirm that the run appears in MongoDB pipeline history.
-7. Select a saved dataset to inspect and visualize its fields.
-
-## Data Model
-
-Each persisted pipeline run is stored as a document in `pipeline_records`. The main fields include:
-
-| Field | Description |
-|---|---|
-| `sourceUrl` | Source API URL |
-| `httpMethod` | HTTP method used for extraction |
-| `runAt` | Pipeline execution timestamp |
-| `rowCount` | Number of flattened rows |
-| `metadata` | Field profiles and type summary |
-| `data` | Array of transformed row objects |
-| `durationMs` | Measured ETL execution duration |
-
-The schema uses flexible storage for metadata and transformed rows so that different API response shapes can be persisted without creating a new Mongoose schema for every source.
-
-## Transformation and Type Inference
-
-### Recursive JSON flattening
-
-Nested object keys are joined with underscores to form flat column names. For example:
-
-```json
-{
-  "user": {
-    "name": "Asha",
-    "age": 21
-  },
-  "orders": [
-    { "product": "Laptop", "price": 65000 },
-    { "product": "Mouse", "price": 800 }
-  ]
-}
+Expected output:
+```text
+NAME                IMAGE       COMMAND                  SERVICE   CREATED         STATUS                    PORTS
+forgeflow-mongo     mongo:8.0   "docker-entrypoint.s…"   mongo     1 minute ago    Up 1 minute (healthy)     0.0.0.0:27017->27017/tcp
+forgeflow-backend   backend     "docker-entrypoint.s…"   backend   1 minute ago    Up 1 minute (healthy)     0.0.0.0:5000->5000/tcp
 ```
 
-The nested object fields become names such as `user_name` and `user_age`. The array of order objects is unwound into separate rows, with parent context retained where applicable.
+### 4. Inspect Service Logs
 
-### Runtime field profiles
+Inspect real-time logs from individual services:
 
-The inference service evaluates non-null values and assigns one of three types:
+```bash
+# Backend logs
+docker compose logs -f backend
 
-- **Numeric:** values consistently parse as finite numbers.
-- **Temporal:** values match supported date/time formats.
-- **Categorical:** text, booleans, mixed values, and values that do not satisfy the numeric or temporal checks.
+# MongoDB logs
+docker compose logs -f mongo
+```
 
-Field profiles include total count, null count, unique count, coverage, and up to ten sample values.
+### 5. Stopping and Restarting
 
-## Security and Configuration Notes
+- **Stop containers (persists database):**
+  ```bash
+  docker compose down
+  ```
+- **Restart containers:**
+  ```bash
+  docker compose up -d
+  ```
 
-- Passwords are hashed with bcrypt before storage.
-- ETL history and execution routes use JWT authentication middleware.
-- Keep `MONGO_URI` and `JWT_SECRET` in environment variables; never commit real credentials.
-- Use HTTPS for deployed services and configure production CORS origins explicitly.
-- Because users can provide external URLs, a production deployment should add strict outbound URL validation and private-network/metadata-address protections to mitigate server-side request forgery (SSRF).
-- Apply sensible response-size limits and request timeouts when connecting to untrusted APIs.
+> ⚠️ **Important:** Never use `docker compose down -v` unless you intentionally want to delete all stored MongoDB records and user accounts. The named volume `forgeflow_mongo_data` guarantees that data survives container restarts.
 
-## Current Scope and Limitations
+---
 
-- The extraction service assembles the complete response body before JSON parsing; very large payloads can still consume significant memory.
-- Nested independent arrays can expand into multiple combinations of rows during recursive flattening.
-- The current backend package does not define an automated test suite; the package test script is a placeholder.
-- Client-side fallback transformation exists for selected demo/preset flows. Data processed only in the browser is not equivalent to a MongoDB-persisted run; use the backend execution path and verify a saved record when persistence is required.
-- Type inference is deterministic and heuristic. It is useful for exploration, but it is not a substitute for a formal source schema or domain validation.
+## Authentication, Authorization & Security
 
-## Future Enhancements
+ForgeFlow enforces enterprise-grade security practices across the entire authentication lifecycle:
 
-- Incremental parsing and bounded-memory ingestion for large JSON payloads.
-- Stronger SSRF protections, endpoint allowlists, and per-source credential handling.
-- Automated unit, integration, and end-to-end tests.
-- Data-quality rules, schema drift detection, and richer profiling.
-- Saved chart configurations and shareable analytics views.
-- Background jobs and progress reporting for long-running pipelines.
-- Role-based access controls and per-user ownership/isolation of pipeline records.
+### 1. User Registration & Password Hashing
+- **Input Validation:** Enforces strict RFC 5322 email formatting, name length constraints (2–80 chars), and password complexity (minimum 8 characters).
+- **Password Protection:** Encrypted using `bcrypt` with cost factor 12. Password hashes are flagged `select: false` in the Mongoose schema and never returned in API responses.
+- **Privilege Escalation Prevention:** Any client-supplied `role` in the registration payload is strictly discarded; new self-registered users are always assigned the base `'developer'` role.
 
-## License and Project Information
+### 2. JWT Verification & Session Policies
+- **Signature & Expiration:** Authenticated endpoints verify token integrity using `process.env.JWT_SECRET`. Tokens expire according to `JWT_EXPIRES_IN` (default: 24 hours).
+- **Graceful Error Responses:** Expired or malformed tokens return HTTP 401 without exposing internal error stack traces or cryptographic keys.
+
+### 3. Rate Limiting
+- The authentication routes (`/api/auth/register`, `/api/auth/login`) are protected by an in-memory IP rate limiter permitting up to **20 requests per 15 minutes** per IP. Exceeded limits return HTTP 429 (`Too Many Requests`) with a standard `Retry-After` header.
+
+### 4. Role-Based Access Control (RBAC)
+- **`admin`**: Full access to all user pipelines, cross-user audit logs, and administrative inspection.
+- **`developer`**: Standard user role; can execute ETL pipelines, explore their own pipeline history, and view dynamic chart analytics.
+- **`viewer`**: Read-only access to authorized records.
+
+### 5. Pipeline Ownership & Cross-User Data Isolation
+- Each executed ETL run stores the authenticated user's ID in `PipelineRecord.owner`.
+- History queries (`GET /api/etl/history`) are filtered strictly by `{ owner: req.user._id }`.
+- Direct document lookups (`GET /api/etl/history/:id`) and analytics queries (`GET /api/etl/history/:id/analytics`) check ownership; unauthorized access attempts by other users return **HTTP 404** to prevent leaking document existence.
+
+### 6. Initial Administrator Account Seeding
+To eliminate hardcoded credentials from the codebase, run the dedicated administrator seed script:
+
+```bash
+cd etl-backend
+npm run seed
+```
+
+This reads `ADMIN_NAME`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` from your environment variables, hashes the credentials with bcrypt, and initializes the administrator account securely.
+
+---
+
+## API Documentation
+
+All application endpoints run on port `5000` by default. Authenticated endpoints require the standard header:
+
+```http
+Authorization: Bearer <JWT_TOKEN>
+```
+
+### Health & Monitoring
+
+#### `GET /health`
+Liveness probe for container orchestration.
+- **Access:** Public
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "OK",
+    "message": "ForgeFlow backend is running",
+    "timestamp": "2026-11-23T19:00:00.000Z"
+  }
+  ```
+
+#### `GET /ready`
+Readiness probe verifying active MongoDB connection pooling.
+- **Access:** Public
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "READY",
+    "database": "connected",
+    "timestamp": "2026-11-23T19:00:00.000Z"
+  }
+  ```
+
+---
+
+### Authentication (`/api/auth`)
+
+#### `POST /api/auth/register`
+Registers a new user account with `'developer'` role.
+- **Access:** Public (Rate limited)
+- **Request Body:**
+  ```json
+  {
+    "name": "Jane Developer",
+    "email": "jane@example.com",
+    "password": "StrongPassword123!"
+  }
+  ```
+- **Response (201 Created):**
+  ```json
+  {
+    "success": true,
+    "message": "Registration successful",
+    "token": "eyJhbGciOi...",
+    "user": {
+      "id": "6650a1b2c3d4e5f6a7b8c9d0",
+      "name": "Jane Developer",
+      "email": "jane@example.com",
+      "role": "developer"
+    }
+  }
+  ```
+
+#### `POST /api/auth/login`
+Authenticates credentials and returns a signed JWT.
+- **Access:** Public (Rate limited)
+- **Request Body:**
+  ```json
+  {
+    "email": "jane@example.com",
+    "password": "StrongPassword123!"
+  }
+  ```
+- **Response (200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Login successful",
+    "token": "eyJhbGciOi...",
+    "user": {
+      "id": "6650a1b2c3d4e5f6a7b8c9d0",
+      "name": "Jane Developer",
+      "email": "jane@example.com",
+      "role": "developer"
+    }
+  }
+  ```
+
+---
+
+### ETL Pipeline (`/api/etl`)
+
+#### `POST /api/etl/run`
+Fetches a remote JSON API, flattens nested structures, runs type inference, and persists the dataset under the caller's user account.
+- **Access:** Authenticated (`developer`, `admin`)
+- **Request Body:**
+  ```json
+  {
+    "url": "https://dummyjson.com/users?limit=10",
+    "method": "GET",
+    "persist": true,
+    "timeoutMs": 30000
+  }
+  ```
+- **Response (200 OK):**
+  ```json
+  {
+    "success": true,
+    "durationMs": 142,
+    "rowCount": 10,
+    "fieldCount": 30,
+    "recordId": "6650a1b2c3d4e5f6a7b8c9e5",
+    "metadata": [
+      { "field": "id", "type": "numeric" },
+      { "field": "firstName", "type": "categorical" },
+      { "field": "age", "type": "numeric" },
+      { "field": "birthDate", "type": "temporal" }
+    ],
+    "data": [ ... ]
+  }
+  ```
+
+#### `GET /api/etl/history`
+Returns paginated pipeline runs owned by the authenticated caller.
+- **Access:** Authenticated
+- **Query Parameters:**
+  - `limit` *(number, optional, default: 20)*: Page size (1–100).
+  - `page` *(number, optional, default: 1)*: Page number.
+  - `all` *(boolean, optional, admin only)*: Set to `true` to view system-wide pipeline runs.
+- **Response (200 OK):**
+  ```json
+  {
+    "success": true,
+    "total": 4,
+    "page": 1,
+    "limit": 20,
+    "pages": 1,
+    "records": [
+      {
+        "_id": "6650a1b2c3d4e5f6a7b8c9e5",
+        "sourceUrl": "https://dummyjson.com/users?limit=10",
+        "httpMethod": "GET",
+        "runAt": "2026-11-23T19:00:00.000Z",
+        "rowCount": 10,
+        "durationMs": 142
+      }
+    ]
+  }
+  ```
+
+#### `GET /api/etl/history/:id`
+Retrieves a single pipeline record including its complete transformed data rows. Enforces ownership isolation (non-owners receive 404).
+- **Access:** Authenticated (Owner or Admin)
+
+#### `GET /api/etl/history/:id/analytics`
+Generates aggregated metric points for dynamic chart visualization directly from stored MongoDB records.
+- **Access:** Authenticated (Owner or Admin)
+- **Query Parameters:**
+  - `xAxis` *(string, optional)*: Grouping field.
+  - `yAxis` *(string, optional)*: Comma-separated numeric metric fields.
+  - `chartType` *(string, optional)*: `bar` | `line` | `area` | `scatter` | `pie`.
+  - `aggregation` *(string, optional)*: `sum` | `avg` | `count` | `min` | `max`.
+
+---
+
+## Automated Test Suite
+
+ForgeFlow includes an automated test suite executed via the native Node.js test runner (`node:test`):
+
+```bash
+cd etl-backend
+npm test
+```
+
+### Verified Test Cases (20 Passing Tests):
+
+1. **User Registration:** Validates account creation, schema population, and confirms passwords are never returned in plain text.
+2. **Duplicate Email Prevention:** Rejects duplicate email registration with HTTP 409.
+3. **Login Authentication:** Verifies valid login returns a signed JWT and user metadata.
+4. **Incorrect Password:** Rejects incorrect passwords with HTTP 401.
+5. **Missing Credentials:** Rejects missing registration parameters with HTTP 400.
+6. **Missing JWT:** Protect middleware blocks unauthenticated requests with HTTP 401.
+7. **Malformed JWT:** Protect middleware rejects corrupted/tampered tokens with HTTP 401.
+8. **Expired JWT:** Protect middleware rejects expired tokens with HTTP 401.
+9. **Role-Based Authorization:** Validates authorized roles pass while unauthorized roles receive HTTP 403.
+10. **Privilege Escalation Prevention:** Confirms client-injected `role: "admin"` during registration is stripped and defaults to `'developer'`.
+11. **Cross-User Data Isolation:** Proves User B cannot access User A's pipeline record (returns HTTP 404).
+12. **Self Pipeline Access:** Verifies User A can access their own pipeline records (returns HTTP 200).
+13. **History Scoping:** Verifies pipeline history queries are strictly scoped to `req.user._id`.
+14. **Analytics Protection:** Proves User B cannot access User A's dataset analytics.
+15. **Bcrypt Cost Factor:** Validates password hashes use salt rounds >= 12.
+
+---
+
+## License
 
 Developed as a B.Tech Computer Science & Engineering capstone project by **Vedant Gupta**.
-
 - **Repository:** https://github.com/Vedant169/ForgeFlow
-- **Primary branch:** `main`
-

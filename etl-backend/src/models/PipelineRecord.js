@@ -62,6 +62,16 @@ const PipelineRecordSchema = new mongoose.Schema(
       type: Number,
       min:  0,
     },
+
+    /**
+     * Authenticated user who executed and owns this pipeline record.
+     * Reference to the User model.
+     */
+    owner: {
+      type:  mongoose.Schema.Types.ObjectId,
+      ref:   'User',
+      index: true,
+    },
   },
   {
     // Allow any extra keys to be stored without schema enforcement
@@ -72,6 +82,7 @@ const PipelineRecordSchema = new mongoose.Schema(
 );
 
 // ── Indexes ───────────────────────────────────────────────────────────────────
+PipelineRecordSchema.index({ owner: 1, runAt: -1 });
 PipelineRecordSchema.index({ sourceUrl: 1, runAt: -1 });
 
 module.exports = mongoose.model('PipelineRecord', PipelineRecordSchema);

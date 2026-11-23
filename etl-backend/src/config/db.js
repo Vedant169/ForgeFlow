@@ -3,50 +3,31 @@
 const mongoose = require('mongoose');
 
 /**
- * Establishes a connection to MongoDB Atlas.
- * Uses connection pooling (default pool size = 5).
+ * Establishes a connection to MongoDB with connection pooling.
  * Emits lifecycle events to stdout for observability.
  */
 const connectDB = async () => {
   const uri = process.env.MONGO_URI;
 
   if (!uri) {
-    console.warn(
-      '[db] MONGO_URI is not set — skipping database connection. ' +
-        'Persistence features will be unavailable.'
-    );
-    return;
+    const errorMsg = '[db] MONGO_URI environment variable is missing.';
+    if (process.env.NODE_ENV === 'production') {
+      console.error(errorMsg);
+      process.exit(1);
+    } else {
+      console.warn(`${errorMsg} Persistence features will be unavailable.`);
+      return null;
+    }
   }
 
   try {
     const conn = await mongoose.connect(uri, {
-      // Recommended for production Atlas clusters
       serverSelectionTimeoutMS: 5_000,
       socketTimeoutMS:          45_000,
       maxPoolSize:              10,
     });
 
-    console.log(`[db] MongoDB connected: ${conn.connection.host}`);
-
-    // Auto-seed demo account if missing
-    try {
-      const User = require('../models/User');
-      const bcrypt = require('bcrypt');
-      const demoEmail = 'vedant.gupta@flowforge.internal';
-      const existing = await User.findOne({ email: demoEmail });
-      if (!existing) {
-        const hashedPassword = await bcrypt.hash('FlowForge2026!', 12);
-        await User.create({
-          name: 'Vedant Gupta',
-          email: demoEmail,
-          password: hashedPassword,
-          role: 'admin'
-        });
-        console.log('[db] Seeded default demo user (vedant.gupta@flowforge.internal)');
-      }
-    } catch (seedErr) {
-      console.warn('[db] Demo seed check skipped:', seedErr.message);
-    }
+    console.log(`[db] MongoDB connected successfully: ${conn.connection.host}`);
 
     mongoose.connection.on('disconnected', () =>
       console.warn('[db] MongoDB disconnected')
@@ -55,12 +36,33 @@ const connectDB = async () => {
       console.log('[db] MongoDB reconnected')
     );
     mongoose.connection.on('error', (err) =>
-      console.error('[db] MongoDB error:', err.message)
+      console.error('[db] MongoDB connection error:', err.message)
     );
+
+    return conn;
   } catch (err) {
-    console.error('[db] Initial connection failed:', err.message);
-    // Do not crash the process — the server can still serve non-DB routes
+    console.error('[db] Initial database connection failed:', err.message);
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[db] Fatal: Database connection is required in production. Exiting.');
+      process.exit(1);
+    }
+    return null;
   }
 };
 
-module.exports = connectDB;
+/**
+ * Gracefully closes Mongoose connection.
+ */
+const closeDB = async () => {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+    console.log('[db] MongoDB connection closed.');
+  }
+};
+
+/**
+ * Returns boolean readiness of MongoDB connection.
+ */
+const isDBConnected = () => mongoose.connection.readyState === 1;
+
+module.exports = { connectDB, closeDB, isDBConnected };

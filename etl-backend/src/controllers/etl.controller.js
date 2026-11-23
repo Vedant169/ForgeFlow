@@ -91,6 +91,7 @@ const runPipeline = asyncWrap(async (req, res) => {
   // ── 4. (Optional) Load to MongoDB ─────────────────────────────────────────
   let savedRecord = null;
   const isConnected = mongoose.connection.readyState === 1;
+  const ownerId = req.user ? req.user._id : null;
 
   if (persist && isConnected) {
     savedRecord = await PipelineRecord.create({
@@ -101,8 +102,9 @@ const runPipeline = asyncWrap(async (req, res) => {
       metadata:   { fieldProfiles, fieldCount, summary },
       data:       rows,
       durationMs,
+      owner:      ownerId,
     });
-    console.log(`[etl] Persisted pipeline record: ${savedRecord._id}`);
+    console.log(`[etl] Persisted pipeline record: ${savedRecord._id} (owner: ${ownerId || 'unassigned'})`);
   } else if (persist && !isConnected) {
     console.warn('[etl] persist=true but MongoDB is not connected — skipping save');
   }
@@ -122,6 +124,8 @@ const runPipeline = asyncWrap(async (req, res) => {
 
 /**
  * Returns paginated run history from MongoDB.
+ * Enforces ownership: users only receive their own records.
+ * Administrators can optionally pass ?all=true to view records across the system.
  */
 const getPipelineHistory = asyncWrap(async (req, res) => {
   const isConnected = mongoose.connection.readyState === 1;
@@ -136,14 +140,19 @@ const getPipelineHistory = asyncWrap(async (req, res) => {
   const page  = Math.max(parseInt(req.query.page,  10) || 1,  1);
   const skip  = (page - 1) * limit;
 
+  const isAdmin = req.user && req.user.role === 'admin';
+  const filter = (isAdmin && req.query.all === 'true')
+    ? {}
+    : { owner: req.user._id };
+
   const [records, total] = await Promise.all([
     PipelineRecord
-      .find({}, { data: 0 }) // Exclude heavy data array from list view
+      .find(filter, { data: 0 }) // Exclude heavy data array from list view
       .sort({ runAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean(),
-    PipelineRecord.countDocuments(),
+    PipelineRecord.countDocuments(filter),
   ]);
 
   return res.status(200).json({
@@ -158,6 +167,7 @@ const getPipelineHistory = asyncWrap(async (req, res) => {
 
 /**
  * Returns a single pipeline run record by ID (includes full data).
+ * Enforces ownership: only the owner or an admin can view the record.
  */
 const getPipelineRecordById = asyncWrap(async (req, res) => {
   const isConnected = mongoose.connection.readyState === 1;
@@ -177,12 +187,22 @@ const getPipelineRecordById = asyncWrap(async (req, res) => {
     return res.status(404).json({ success: false, message: 'Record not found.' });
   }
 
+  // Ownership verification
+  const isOwner = record.owner && req.user && String(record.owner) === String(req.user._id);
+  const isAdmin = req.user && req.user.role === 'admin';
+  const isLegacyUnowned = !record.owner && isAdmin;
+
+  if (!isOwner && !isAdmin && !isLegacyUnowned) {
+    return res.status(404).json({ success: false, message: 'Record not found.' });
+  }
+
   return res.status(200).json({ success: true, record });
 });
 
 /**
  * Computes dynamic dataset analytics, field categorization, and aggregated chart data.
  * GET /api/etl/history/:id/analytics
+ * Enforces ownership: only the owner or an admin can access analytics for the record.
  */
 const getPipelineAnalytics = asyncWrap(async (req, res) => {
   const isConnected = mongoose.connection.readyState === 1;
@@ -199,6 +219,15 @@ const getPipelineAnalytics = asyncWrap(async (req, res) => {
 
   const record = await PipelineRecord.findById(req.params.id).lean();
   if (!record) {
+    return res.status(404).json({ success: false, message: 'Record not found.' });
+  }
+
+  // Ownership verification
+  const isOwner = record.owner && req.user && String(record.owner) === String(req.user._id);
+  const isAdmin = req.user && req.user.role === 'admin';
+  const isLegacyUnowned = !record.owner && isAdmin;
+
+  if (!isOwner && !isAdmin && !isLegacyUnowned) {
     return res.status(404).json({ success: false, message: 'Record not found.' });
   }
 
